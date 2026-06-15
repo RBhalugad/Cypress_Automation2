@@ -1,0 +1,6 @@
+node_modules
+dist
+cypress/reports
+cypress/downloads
+cypress/fixtures
+package-lock.json

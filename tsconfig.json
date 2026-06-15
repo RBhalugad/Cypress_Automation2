@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "lib": ["ES6", "DOM"],
+    "types": ["cypress", "node"],
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "outDir": "./dist"
+  },
+  "include": ["cypress/**/*.ts", "cypress/**/*.spec.ts", "cypress.config.ts"],
+  "exclude": ["node_modules", "dist"]
+}

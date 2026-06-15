@@ -1,0 +1,8 @@
+node_modules/
+dist/
+cypress/reports/
+cypress/downloads/
+.env
+*.log
+.vscode/*
+!.vscode/settings.json

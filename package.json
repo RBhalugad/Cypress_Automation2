@@ -1,0 +1,54 @@
+{
+  "name": "cypress-automation",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "cypress run",
+    "test:open": "cypress open",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"cypress/**/*.ts\" \"cypress.config.ts\" \"tsconfig.json\"",
+    "format:check": "prettier --check \"cypress/**/*.ts\" \"cypress.config.ts\" \"tsconfig.json\"",
+    "lint": "eslint \"cypress/**/*.ts\" \"cypress.config.ts\"",
+    "lint:fix": "eslint \"cypress/**/*.ts\" \"cypress.config.ts\" --fix",
+    "prepare": "husky"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@cypress/xpath": "^2.0.3",
+    "@faker-js/faker": "^10.4.0",
+    "@types/node": "^25.9.3",
+    "@typescript-eslint/eslint-plugin": "^8.61.0",
+    "@typescript-eslint/parser": "^8.61.0",
+    "ajv": "^8.20.0",
+    "cypress": "^15.7.0",
+    "cypress-iframe": "^1.0.1",
+    "cypress-mochawesome-reporter": "^4.0.2",
+    "cypress-plugin-api": "^2.11.2",
+    "cypress-real-events": "^1.15.0",
+    "dotenv": "^17.4.2",
+    "eslint": "^10.5.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-cypress": "^6.4.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.1",
+    "prettier": "^3.8.4",
+    "typescript": "^5.8.3"
+  },
+  "overrides": {
+    "diff": "8.0.3",
+    "serialize-javascript": "7.0.5",
+    "uuid": "11.1.1"
+  },
+  "lint-staged": {
+    "cypress/**/*.ts": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "cypress.config.ts": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  }
+}

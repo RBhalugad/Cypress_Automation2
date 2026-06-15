@@ -1,0 +1,7 @@
+{
+  "name": "Randhir",
+  "email": "hello@cypress.io",
+  "body": "Fixtures are a great way to mock data for responses to routes",
+  "password":"Password123",
+  "successmsg":"Success! The Form has been submitted successfully!."
+}
