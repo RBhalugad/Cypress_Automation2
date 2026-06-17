@@ -1,10 +1,8 @@
 name: Cypress Regression Tests
 
 on:
-  push:
-    branches: [ main, master ]
   pull_request:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
     inputs:
       browser:
@@ -17,6 +15,11 @@ on:
           - firefox
           - edge
           - electron
+      record:
+        description: 'Record tests to Cypress Cloud'
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   cypress-run:
@@ -41,7 +44,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v7
         with:
-          record: true
+          record: ${{ github.event.inputs.record || true }}
           parallel: true
           browser: ${{ github.event.inputs.browser || 'chrome' }}
         env:
@@ -57,6 +60,7 @@ jobs:
         with:
           name: cypress-screenshots
           path: cypress/screenshots
+          retention-days: 1
 
       - name: Upload Cypress videos
         uses: actions/upload-artifact@v4
@@ -64,6 +68,7 @@ jobs:
         with:
           name: cypress-videos
           path: cypress/videos
+          retention-days: 1
 
       - name: Upload Cypress Report
         uses: actions/upload-artifact@v4
@@ -71,3 +76,4 @@ jobs:
         with:
           name: cypress-reports
           path: cypress/reports
+          retention-days: 1
