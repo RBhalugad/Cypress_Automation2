@@ -1,17 +1,24 @@
-import HomePage from '../support/pages/HomePage';
+import HomePage from '../pages/HomePage';
+
+interface UserData {
+    name: string;
+    email: string;
+    password: string;
+}
 
 describe('Read Data from external file', () => {
-    let fixtureData: { name: string; email: string; password: string };
+    let fixtureData: UserData;
     const homePage = new HomePage();
+    const url = 'https://rahulshettyacademy.com/angularpractice/';
 
-    before(() => {
+    beforeEach(() => {
         cy.fixture('example').then((data) => {
             fixtureData = data;
         });
     });
 
     it('login to app', () => {
-        homePage.goTo('https://rahulshettyacademy.com/angularpractice/');
+        homePage.goTo(url);
         homePage.login(fixtureData.name, fixtureData.email, fixtureData.password);
     });
 });
