@@ -1,0 +1,51 @@
+name: Cypress Regression Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        env:
+          CYPRESS_baseurl: ${{ secrets.CYPRESS_BASEURL }}
+          CYPRESS_ecom_user: ${{ secrets.CYPRESS_ECOM_USER }}
+          CYPRESS_ecom_password: ${{ secrets.CYPRESS_ECOM_PASSWORD }}
+
+      - name: Upload Cypress screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+
+      - name: Upload Cypress videos
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-videos
+          path: cypress/videos
+
+      - name: Upload Cypress Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cypress-reports
+          path: cypress/reports
