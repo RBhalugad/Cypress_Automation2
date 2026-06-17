@@ -45,6 +45,9 @@ describe('E-Commerce API E2E Flow', () => {
                 }).then((addProductResponse) => {
                     expect(addProductResponse.status).to.eq(201);
                     productId = addProductResponse.body.productId;
+                    // Validate productId is present before proceeding
+                    expect(productId, 'Product ID should be returned from add-product').to.not.be
+                        .undefined;
                     cy.log(`*Product added successfully. ProductId: ${productId}*`);
 
                     // --- 3. Create Order ---
@@ -75,7 +78,7 @@ describe('E-Commerce API E2E Flow', () => {
                         cy.log('*--- Deleting the product to clean up ---*');
                         cy.request({
                             method: 'DELETE',
-                            url: `/api/ecom/product/delete-product/${productId}`,
+                            url: `${baseUrl}/api/ecom/product/delete-product/${productId}`,
                             headers: {
                                 Authorization: token,
                             },
