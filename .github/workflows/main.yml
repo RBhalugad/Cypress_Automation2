@@ -23,11 +23,16 @@ jobs:
         run: npm install
 
       - name: Cypress run
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
+        with:
+          record: true
+          parallel: true
         env:
           CYPRESS_baseurl: ${{ secrets.CYPRESS_BASEURL }}
           CYPRESS_ecom_user: ${{ secrets.CYPRESS_ECOM_USER }}
           CYPRESS_ecom_password: ${{ secrets.CYPRESS_ECOM_PASSWORD }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Cypress screenshots
         uses: actions/upload-artifact@v4

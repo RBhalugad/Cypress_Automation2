@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 export default defineConfig({
+    projectId: 'tjezyk',
     viewportHeight: 911,
     viewportWidth: 1920,
     defaultCommandTimeout: 8000,
