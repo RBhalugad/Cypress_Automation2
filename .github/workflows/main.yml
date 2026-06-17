@@ -5,10 +5,26 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Select the browser to run tests'
+        required: true
+        default: 'chrome'
+        type: choice
+        options:
+          - chrome
+          - firefox
+          - edge
+          - electron
 
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,6 +43,7 @@ jobs:
         with:
           record: true
           parallel: true
+          browser: ${{ github.event.inputs.browser || 'chrome' }}
         env:
           CYPRESS_baseurl: ${{ secrets.CYPRESS_BASEURL }}
           CYPRESS_ecom_user: ${{ secrets.CYPRESS_ECOM_USER }}
