@@ -2,7 +2,6 @@ describe('Handling Alert', () => {
     it('handling alert', () => {
         cy.visit('https://rahulshettyacademy.com/AutomationPractice/');
         cy.get('#alertbtn').click();
-        cy.wait(3000);
 
         cy.get('#confirmbtn').click();
 

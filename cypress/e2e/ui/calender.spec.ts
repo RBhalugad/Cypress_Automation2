@@ -6,7 +6,6 @@ describe('Calendar test', () => {
         const expectedList: string[] = [monthNumber, date, year];
 
         cy.visit('https://rahulshettyacademy.com/seleniumPractise/#/offers');
-        cy.wait(1000);
         cy.get('.react-date-picker__inputGroup').click();
 
         cy.get('.react-calendar__navigation__label').click();

@@ -1,7 +1,7 @@
-import ConfirmationPage from '../support/pages/ConfirmationPage';
-import HomePage from '../support/pages/HomePage';
-import ProductPage from '../support/pages/ProductPage';
-import CartPage from '../support/pages/CartPage';
+import CartPage from '../../pages/CartPage';
+import ConfirmationPage from '../../pages/ConfirmationPage';
+import HomePage from '../../pages/HomePage';
+import ProductPage from '../../pages/ProductPage';
 
 describe('End to End test', () => {
     const productPage = new ProductPage();
