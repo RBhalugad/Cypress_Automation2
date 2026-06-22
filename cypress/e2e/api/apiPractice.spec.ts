@@ -37,7 +37,7 @@ describe('practice api test', () => {
     it('POST API testing', () => {
         cy.request({
             method: 'POST',
-            url: `${baseUrl}/maps/api/place/add/json`,
+            url: `${baseUrl}/posts`,
             body: postData,
             headers: {
                 'Content-type': 'application/json; charset=UTF-8',

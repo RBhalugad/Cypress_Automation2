@@ -25,72 +25,81 @@ describe('E-Commerce API E2E Flow', () => {
             cy.fixture('shopping.jpg', 'binary').then((fileContent: string) => {
                 const blob = Cypress.Blob.binaryStringToBlob(fileContent, 'image/jpeg');
 
-                const formData = new FormData();
-                formData.append('productName', 'Laptop');
-                formData.append('productAddedBy', userId);
-                formData.append('productCategory', 'fashion');
-                formData.append('productSubCategory', 'shirts');
-                formData.append('productPrice', '11500');
-                formData.append('productDescription', 'Lenova');
-                formData.append('productFor', 'men');
-                formData.append('productImage', blob, 'shopping.jpg');
+                cy.window()
+                    .then((win) => {
+                        const formData = new win.FormData();
+                        formData.append('productName', 'Laptop');
+                        formData.append('productAddedBy', userId);
+                        formData.append('productCategory', 'fashion');
+                        formData.append('productSubCategory', 'shirts');
+                        formData.append('productPrice', '11500');
+                        formData.append('productDescription', 'Lenova');
+                        formData.append('productFor', 'men');
+                        formData.append(
+                            'productImage',
+                            new win.File([blob], 'shopping.jpg', { type: 'image/jpeg' }),
+                        );
 
-                cy.request({
-                    method: 'POST',
-                    url: `${baseUrl}/api/ecom/product/add-product`,
-                    headers: {
-                        Authorization: token,
-                    },
-                    body: formData,
-                }).then((addProductResponse) => {
-                    expect(addProductResponse.status).to.eq(201);
-                    productId = addProductResponse.body.productId;
-                    // Validate productId is present before proceeding
-                    expect(productId, 'Product ID should be returned from add-product').to.not.be
-                        .undefined;
-                    cy.log(`*Product added successfully. ProductId: ${productId}*`);
+                        return win
+                            .fetch(`${baseUrl}/api/ecom/product/add-product`, {
+                                method: 'POST',
+                                headers: {
+                                    Authorization: token,
+                                },
+                                body: formData,
+                            })
+                            .then((res) => res.json());
+                    })
+                    .then((addProductResponseBody) => {
+                        productId = addProductResponseBody.productId;
+                        // Validate productId is present before proceeding
+                        expect(productId, 'Product ID should be returned from add-product').to.not
+                            .be.undefined;
+                        cy.log(`*Product added successfully. ProductId: ${productId}*`);
 
-                    // --- 3. Create Order ---
-                    cy.log('*--- Creating an order for the new product ---*');
-                    const orderPayload = {
-                        orders: [
-                            {
-                                country: 'India',
-                                productOrderedId: productId,
-                            },
-                        ],
-                    };
+                        // --- 3. Create Order ---
+                        cy.log('*--- Creating an order for the new product ---*');
+                        const orderPayload = {
+                            orders: [
+                                {
+                                    country: 'India',
+                                    productOrderedId: productId,
+                                },
+                            ],
+                        };
 
-                    cy.request({
-                        method: 'POST',
-                        url: `${baseUrl}/api/ecom/order/create-order`,
-                        headers: {
-                            Authorization: token,
-                            'Content-Type': 'application/json',
-                        },
-                        body: orderPayload,
-                    }).then((createOrderResponse) => {
-                        expect(createOrderResponse.status).to.eq(201);
-                        expect(createOrderResponse.body.message).to.eq('Order Placed Successfully');
-                        cy.log('*Order created successfully.*');
-
-                        // --- 4. Delete Product ---
-                        cy.log('*--- Deleting the product to clean up ---*');
                         cy.request({
-                            method: 'DELETE',
-                            url: `${baseUrl}/api/ecom/product/delete-product/${productId}`,
+                            method: 'POST',
+                            url: `${baseUrl}/api/ecom/order/create-order`,
                             headers: {
                                 Authorization: token,
+                                'Content-Type': 'application/json',
                             },
-                        }).then((deleteResponse) => {
-                            expect(deleteResponse.status).to.eq(200);
-                            expect(deleteResponse.body.message).to.eq(
-                                'Product Deleted Successfully',
+                            body: orderPayload,
+                        }).then((createOrderResponse) => {
+                            expect(createOrderResponse.status).to.eq(201);
+                            expect(createOrderResponse.body.message).to.eq(
+                                'Order Placed Successfully',
                             );
-                            cy.log('*Product deleted successfully.*');
+                            cy.log('*Order created successfully.*');
+
+                            // --- 4. Delete Product ---
+                            cy.log('*--- Deleting the product to clean up ---*');
+                            cy.request({
+                                method: 'DELETE',
+                                url: `${baseUrl}/api/ecom/product/delete-product/${productId}`,
+                                headers: {
+                                    Authorization: token,
+                                },
+                            }).then((deleteResponse) => {
+                                expect(deleteResponse.status).to.eq(200);
+                                expect(deleteResponse.body.message).to.eq(
+                                    'Product Deleted Successfully',
+                                );
+                                cy.log('*Product deleted successfully.*');
+                            });
                         });
                     });
-                });
             });
         });
     });

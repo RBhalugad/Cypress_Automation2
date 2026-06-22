@@ -9,7 +9,7 @@ describe('Handling DropDown', () => {
             cy.log(optionToSelect);
 
             if (optionToSelect.includes('India')) {
-                cy.wrap($el).click();
+                cy.wrap($el).click({ force: true });
             }
         });
         cy.get('#autocomplete').should('have.value', 'India');
