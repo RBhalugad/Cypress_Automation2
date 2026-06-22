@@ -1,7 +1,7 @@
 import { defineConfig } from 'cypress';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
-const { defineGrepConfig } = require('@cypress/grep/src/plugin');
+const { plugin: grepPlugin } = require('@cypress/grep/plugin');
 
 dotenv.config();
 
@@ -23,7 +23,7 @@ export default defineConfig({
         experimentalStudio: true,
         setupNodeEvents(on, config) {
             require('cypress-mochawesome-reporter/plugin')(on);
-            defineGrepConfig(config);
+            grepPlugin(on, config);
             on('task', {
                 deleteDownloads() {
                     const folderPath = 'cypress/downloads';

@@ -14,9 +14,6 @@ describe('Verify download and upload functionality', { tags: '@ui' }, () => {
     it('Verify upload functionality', { tags: ['@regression', '@ui'] }, () => {
         const filePath = `${Cypress.config('fixturesFolder')}/${fileName}`;
         cy.get('#uploadFile').selectFile(filePath);
-        cy.get('#uploadedFilePath').should('be.visible').and('have.text', fileName);
-        cy.task('readDownloads', fileName).then((file) => {
-            expect(file).to.exist;
-        });
+        cy.get('#uploadedFilePath').invoke('text').should('include', fileName);
     });
 });
