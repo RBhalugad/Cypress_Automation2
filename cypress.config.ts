@@ -1,5 +1,6 @@
 import { defineConfig } from 'cypress';
 import * as dotenv from 'dotenv';
+import * as fs from 'fs';
 
 dotenv.config();
 
@@ -21,6 +22,15 @@ export default defineConfig({
         experimentalStudio: true,
         setupNodeEvents(on, config) {
             require('cypress-mochawesome-reporter/plugin')(on);
+            on('task', {
+                deleteDownloads() {
+                    const folderPath = 'cypress/downloads';
+                    if (fs.existsSync(folderPath)) {
+                        fs.rmSync(folderPath, { recursive: true, force: true });
+                    }
+                    return null;
+                },
+            });
             return config;
         },
     },
