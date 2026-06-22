@@ -9,6 +9,8 @@ interface PlacePayload {
     language: string;
 }
 
+import { faker } from '@faker-js/faker';
+
 describe('Verify google API', () => {
     const baseUrl: string = Cypress.env('baseurl');
     let addPlacePayload: PlacePayload;
@@ -16,15 +18,15 @@ describe('Verify google API', () => {
     beforeEach(() => {
         addPlacePayload = {
             location: {
-                lat: -38.383494,
-                lng: 33.427362,
+                lat: faker.location.latitude(),
+                lng: faker.location.longitude(),
             },
             accuracy: 50,
-            name: 'Frontline house',
-            phone_number: '(+91) 983 893 3937',
-            address: '29, side layout, cohen 09',
+            name: faker.person.firstName(),
+            phone_number: faker.phone.number(),
+            address: faker.location.streetAddress(),
             types: ['shoe park', 'shop'],
-            website: 'http://google.com',
+            website: faker.internet.url(),
             language: 'French-IN',
         };
     });
