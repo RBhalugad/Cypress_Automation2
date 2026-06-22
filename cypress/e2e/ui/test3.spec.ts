@@ -1,5 +1,5 @@
-describe('Handling Checkboxes', () => {
-    it('handling checkboxes', () => {
+describe('Handling Checkboxes', { tags: '@ui' }, () => {
+    it('handling checkboxes', { tags: ['@regression', '@ui'] }, () => {
         cy.visit('https://rahulshettyacademy.com/AutomationPractice/');
         cy.get('#checkBoxOption1').check().should('be.checked').and('have.value', 'option1');
         cy.get('#checkBoxOption1').uncheck().should('not.be.checked');

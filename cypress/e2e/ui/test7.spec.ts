@@ -1,5 +1,5 @@
-describe('haldling table', () => {
-    it('table', () => {
+describe('haldling table', { tags: '@ui' }, () => {
+    it('table', { tags: ['@regression', '@ui'] }, () => {
         cy.visit('https://rahulshettyacademy.com/AutomationPractice/');
         cy.get('.left-align #product tr td:nth-child(2)').each(($el, index) => {
             const text = $el.text();

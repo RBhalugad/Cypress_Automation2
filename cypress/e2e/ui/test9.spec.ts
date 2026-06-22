@@ -1,5 +1,5 @@
-describe('Handling windows', () => {
-    it('new window', () => {
+describe('Handling windows', { tags: '@ui' }, () => {
+    it('new window', { tags: ['@regression', '@ui'] }, () => {
         cy.visit('https://rahulshettyacademy.com/AutomationPractice/');
 
         cy.window().then((win) => {

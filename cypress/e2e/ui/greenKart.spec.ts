@@ -1,5 +1,5 @@
-describe('My First Test Suite', () => {
-    it('lunch application', () => {
+describe('My First Test Suite', { tags: '@ui' }, () => {
+    it('lunch application', { tags: ['@smoke', '@ui'] }, () => {
         cy.visit('https://rahulshettyacademy.com/seleniumPractise/#/');
         cy.get('input.search-keyword').type('ca');
         cy.get('.product:visible').should('have.length', 4);

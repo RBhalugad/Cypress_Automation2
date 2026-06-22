@@ -11,7 +11,7 @@ interface PlacePayload {
 
 import { faker } from '@faker-js/faker';
 
-describe('Verify google API', () => {
+describe('Verify google API', { tags: '@api' }, () => {
     const baseUrl: string = Cypress.env('baseurl');
     let addPlacePayload: PlacePayload;
 
@@ -31,7 +31,7 @@ describe('Verify google API', () => {
         };
     });
 
-    it('verify addupdategetdelete place', () => {
+    it('verify addupdategetdelete place', { tags: ['@api', '@smoke'] }, () => {
         cy.log('*--- Adding a new place ---*');
         cy.request({
             method: 'POST',
@@ -95,24 +95,28 @@ describe('Verify google API', () => {
         });
     });
 
-    it('should add a place using data from a static JSON file', () => {
-        cy.log('*--- Loading payload from fixture: addPlace.json ---*');
-        cy.fixture('addPlace.json').then((payload) => {
-            cy.log('*Payload loaded:*', JSON.stringify(payload));
-            cy.log('*--- Adding a new place using fixture data ---*');
-            cy.request({
-                method: 'POST',
-                url: `${baseUrl}/maps/api/place/add/json`,
-                qs: { key: 'qaclick123' },
-                body: payload,
-                headers: { 'Content-Type': 'application/json' },
-            }).then((response) => {
-                cy.log('*Response Body:*', JSON.stringify(response.body));
-                expect(response.status).to.eq(200);
-                expect(response.body.scope).to.eq('APP');
-                expect(response.headers.server).to.eq('Apache/2.4.52 (Ubuntu)');
-                cy.log('*Assertions passed successfully.*');
+    it(
+        'should add a place using data from a static JSON file',
+        { tags: ['@api', '@regression'] },
+        () => {
+            cy.log('*--- Loading payload from fixture: addPlace.json ---*');
+            cy.fixture('addPlace.json').then((payload) => {
+                cy.log('*Payload loaded:*', JSON.stringify(payload));
+                cy.log('*--- Adding a new place using fixture data ---*');
+                cy.request({
+                    method: 'POST',
+                    url: `${baseUrl}/maps/api/place/add/json`,
+                    qs: { key: 'qaclick123' },
+                    body: payload,
+                    headers: { 'Content-Type': 'application/json' },
+                }).then((response) => {
+                    cy.log('*Response Body:*', JSON.stringify(response.body));
+                    expect(response.status).to.eq(200);
+                    expect(response.body.scope).to.eq('APP');
+                    expect(response.headers.server).to.eq('Apache/2.4.52 (Ubuntu)');
+                    cy.log('*Assertions passed successfully.*');
+                });
             });
-        });
-    });
+        },
+    );
 });

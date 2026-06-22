@@ -1,4 +1,4 @@
-describe('practice api test', () => {
+describe('practice api test', { tags: '@api' }, () => {
     const baseUrl = 'https://jsonplaceholder.typicode.com';
     let postData: { title: string; body: string; userId: number };
     let putData: { id: number; title: string; body: string; userId: number };
@@ -21,7 +21,7 @@ describe('practice api test', () => {
         };
     });
 
-    it('GET API testing', () => {
+    it('GET API testing', { tags: ['@api', '@smoke'] }, () => {
         cy.request({
             method: 'GET',
             url: `${baseUrl}/posts/1`,
@@ -34,7 +34,7 @@ describe('practice api test', () => {
         });
     });
 
-    it('POST API testing', () => {
+    it('POST API testing', { tags: ['@api', '@regression'] }, () => {
         cy.request({
             method: 'POST',
             url: `${baseUrl}/posts`,
@@ -49,7 +49,7 @@ describe('practice api test', () => {
         });
     });
 
-    it('PUT API testing', () => {
+    it('PUT API testing', { tags: ['@api', '@regression'] }, () => {
         cy.request({
             method: 'PUT',
             url: `${baseUrl}/posts/1`,
@@ -63,7 +63,7 @@ describe('practice api test', () => {
         });
     });
 
-    it('PATCH API testing', () => {
+    it('PATCH API testing', { tags: ['@api', '@regression'] }, () => {
         cy.request({
             method: 'PATCH',
             url: `${baseUrl}/posts/1`,
@@ -77,7 +77,7 @@ describe('practice api test', () => {
         });
     });
 
-    it('DELETE API testing', () => {
+    it('DELETE API testing', { tags: ['@api', '@regression'] }, () => {
         cy.request('DELETE', `${baseUrl}/posts/1`).then((response) => {
             expect(response.status).to.eq(200);
         });

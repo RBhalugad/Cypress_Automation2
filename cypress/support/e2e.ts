@@ -19,6 +19,7 @@ import 'cypress-mochawesome-reporter/register';
 import 'cypress-plugin-api';
 import '@cypress/xpath';
 import 'cypress-real-events/support';
+import registerCypressGrep from '@cypress/grep';
 
 /// <reference types="cypress"/>
 /// <reference types="cypress-iframe"/>

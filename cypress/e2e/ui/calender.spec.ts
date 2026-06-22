@@ -1,5 +1,5 @@
 describe('Calendar test', () => {
-    it('Verify date selection', () => {
+    it('Verify date selection', { tags: '@regression' }, () => {
         const monthNumber = '6';
         const date = '15';
         const year = '2027';

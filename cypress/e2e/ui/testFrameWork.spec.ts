@@ -6,7 +6,7 @@ interface UserData {
     password: string;
 }
 
-describe('Read Data from external file', () => {
+describe('Read Data from external file', { tags: '@ui' }, () => {
     let fixtureData: UserData;
     const homePage = new HomePage();
     const url = 'https://rahulshettyacademy.com/angularpractice/';
@@ -17,7 +17,7 @@ describe('Read Data from external file', () => {
         });
     });
 
-    it('login to app', () => {
+    it('login to app', { tags: ['@smoke', '@ui'] }, () => {
         homePage.goTo(url);
         homePage.login(fixtureData.name, fixtureData.email, fixtureData.password);
     });

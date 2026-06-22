@@ -1,6 +1,7 @@
 import { defineConfig } from 'cypress';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
+const { defineGrepConfig } = require('@cypress/grep/src/plugin');
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ export default defineConfig({
         experimentalStudio: true,
         setupNodeEvents(on, config) {
             require('cypress-mochawesome-reporter/plugin')(on);
+            defineGrepConfig(config);
             on('task', {
                 deleteDownloads() {
                     const folderPath = 'cypress/downloads';
@@ -29,6 +31,24 @@ export default defineConfig({
                         fs.rmSync(folderPath, { recursive: true, force: true });
                     }
                     return null;
+                },
+                readDownloads(fileName: string) {
+                    const filePath = `cypress/downloads/${fileName}`;
+                    const timeout = 10000;
+                    const interval = 300;
+                    const start = Date.now();
+                    return new Promise((resolve) => {
+                        const check = () => {
+                            if (fs.existsSync(filePath)) {
+                                resolve(fs.readFileSync(filePath));
+                            } else if (Date.now() - start >= timeout) {
+                                resolve(null);
+                            } else {
+                                setTimeout(check, interval);
+                            }
+                        };
+                        check();
+                    });
                 },
             });
             return config;

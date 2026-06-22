@@ -1,5 +1,5 @@
-describe('Handling Alert', () => {
-    it('handling alert', () => {
+describe('Handling Alert', { tags: '@ui' }, () => {
+    it('handling alert', { tags: ['@regression', '@ui'] }, () => {
         cy.visit('https://rahulshettyacademy.com/AutomationPractice/');
         cy.get('#alertbtn').click();
 

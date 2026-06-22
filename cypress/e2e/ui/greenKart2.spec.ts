@@ -1,5 +1,5 @@
-describe('My First Test Suite 2', () => {
-    it('Shop E2E', () => {
+describe('My First Test Suite 2', { tags: '@ui' }, () => {
+    it('Shop E2E', { tags: ['@e2e', '@ui'] }, () => {
         cy.visit('https://rahulshettyacademy.com/seleniumPractise/#/');
         cy.get('input.search-keyword').type('ca');
         cy.get('.product:visible').should('have.length', 4);

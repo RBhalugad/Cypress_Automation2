@@ -1,5 +1,5 @@
-describe('Child Window', () => {
-    it('Handling Child Windows', () => {
+describe('Child Window', { tags: '@ui' }, () => {
+    it('Handling Child Windows', { tags: ['@regression', '@ui'] }, () => {
         cy.visit('https://rahulshettyacademy.com/AutomationPractice/');
         cy.get('#opentab').invoke('removeAttr', 'target').click();
 
