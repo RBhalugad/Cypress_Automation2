@@ -7,15 +7,21 @@ dotenv.config();
 
 export default defineConfig({
     projectId: 'tjezyk',
-    viewportHeight: 911,
+    viewportHeight: 1080,
     viewportWidth: 1920,
-    defaultCommandTimeout: 8000,
-    pageLoadTimeout: 60000,
+    defaultCommandTimeout: 30_000,
+    pageLoadTimeout: 60_000,
+    requestTimeout: 30_000,
+    responseTimeout: 60_000,
+    retries: { runMode: 2, openMode: 1 },
     chromeWebSecurity: false,
     env: {
         baseurl: 'https://rahulshettyacademy.com',
         ecom_user: 'randhirpatel.naukri@gmail.com',
         ecom_password: 'Pixel8@2024',
+        apiUrl: 'https://jsonplaceholder.typicode.com',
+        authToken: 'your-token-here',
+        apiKey: 'your-api-key',
     },
     reporter: 'cypress-mochawesome-reporter',
     e2e: {
