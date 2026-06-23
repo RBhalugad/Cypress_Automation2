@@ -1,8 +1,22 @@
-name: Cypress Regression Tests
+name: Cypress UI Tests
 
 on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'cypress/e2e/ui/**'
+      - 'cypress/pages/**'
+      - 'cypress/support/**'
+      - 'cypress/fixtures/**'
+      - 'cypress.config.ts'
   pull_request:
-    branches: [ main ]
+    branches: [main]
+    paths:
+      - 'cypress/e2e/ui/**'
+      - 'cypress/pages/**'
+      - 'cypress/support/**'
+      - 'cypress/fixtures/**'
+      - 'cypress.config.ts'
   workflow_dispatch:
     inputs:
       browser:
@@ -22,7 +36,8 @@ on:
         default: true
 
 jobs:
-  cypress-run:
+  ui-tests:
+    name: UI Tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -39,14 +54,17 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Cypress run
+      - name: Cypress UI Tests
         uses: cypress-io/github-action@v7
         with:
+          install: false
           record: ${{ github.event.inputs.record || true }}
           parallel: true
           browser: ${{ github.event.inputs.browser || 'chrome' }}
+          spec: 'cypress/e2e/ui/**/*.spec.ts'
+          group: 'UI Tests'
         env:
           CYPRESS_baseurl: ${{ secrets.CYPRESS_BASEURL }}
           CYPRESS_ecom_user: ${{ secrets.CYPRESS_ECOM_USER }}
@@ -58,22 +76,22 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: cypress-screenshots
+          name: ui-test-screenshots-${{ matrix.containers }}
           path: cypress/screenshots
-          retention-days: 1
+          retention-days: 3
 
       - name: Upload Cypress videos
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: cypress-videos
+          name: ui-test-videos-${{ matrix.containers }}
           path: cypress/videos
-          retention-days: 1
+          retention-days: 3
 
       - name: Upload Cypress Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: cypress-reports
+          name: ui-test-reports-${{ matrix.containers }}
           path: cypress/reports
-          retention-days: 1
+          retention-days: 5

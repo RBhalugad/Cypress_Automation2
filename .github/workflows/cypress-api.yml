@@ -1,0 +1,118 @@
+name: Cypress API Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'cypress/e2e/api/**'
+      - 'cypress/types/**'
+      - 'cypress/support/**'
+      - 'cypress/fixtures/**'
+      - 'cypress.config.ts'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'cypress/e2e/api/**'
+      - 'cypress/types/**'
+      - 'cypress/support/**'
+      - 'cypress/fixtures/**'
+      - 'cypress.config.ts'
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Select the browser to run tests'
+        required: true
+        default: 'electron'
+        type: choice
+        options:
+          - chrome
+          - firefox
+          - edge
+          - electron
+      record:
+        description: 'Record tests to Cypress Cloud'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  typecheck:
+    name: TypeScript Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npx tsc --noEmit
+
+  api-tests:
+    name: API Tests
+    needs: typecheck
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cypress API Tests
+        uses: cypress-io/github-action@v7
+        with:
+          install: false
+          record: ${{ github.event.inputs.record || true }}
+          parallel: true
+          browser: ${{ github.event.inputs.browser || 'electron' }}
+          spec: 'cypress/e2e/api/**/*.spec.ts'
+          group: 'API Tests'
+        env:
+          CYPRESS_baseurl: ${{ secrets.CYPRESS_BASEURL }}
+          CYPRESS_apiUrl: https://jsonplaceholder.typicode.com
+          CYPRESS_authToken: ${{ secrets.CYPRESS_AUTH_TOKEN }}
+          CYPRESS_apiKey: ${{ secrets.CYPRESS_API_KEY }}
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Cypress screenshots
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: api-test-screenshots-${{ matrix.containers }}
+          path: cypress/screenshots
+          retention-days: 3
+
+      - name: Upload Cypress videos
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: api-test-videos-${{ matrix.containers }}
+          path: cypress/videos
+          retention-days: 3
+
+      - name: Upload Cypress Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-test-reports-${{ matrix.containers }}
+          path: cypress/reports
+          retention-days: 5
