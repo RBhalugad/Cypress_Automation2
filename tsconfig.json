@@ -2,7 +2,14 @@
     "compilerOptions": {
         "target": "ES6",
         "lib": ["ES6", "DOM"],
-        "types": ["cypress", "node"],
+        "types": [
+            "cypress",
+            "node",
+            "@testing-library/cypress",
+            "@cypress/xpath",
+            "cypress-real-events",
+            "@cypress/grep"
+        ],
         "moduleResolution": "bundler",
         "allowJs": true,
         "resolveJsonModule": true,

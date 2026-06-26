@@ -16,11 +16,15 @@
 // Import commands.ts using ES2015 syntax:
 import './commands';
 import 'cypress-mochawesome-reporter/register';
-import 'cypress-plugin-api';
 import '@cypress/xpath';
 import 'cypress-real-events/support';
-import registerCypressGrep from '@cypress/grep';
+import { register } from '@cypress/grep';
+register();
+import '@testing-library/cypress/add-commands';
 
 /// <reference types="cypress"/>
 /// <reference types="cypress-iframe"/>
-/// <reference types="cypress-plugin-api"/>
+/// <reference types="@testing-library/cypress"/>
+/// <reference types="@cypress/xpath"/>
+/// <reference types="cypress-real-events"/>
+/// <reference types="@cypress/grep"/>
