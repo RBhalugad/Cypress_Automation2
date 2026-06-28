@@ -2,7 +2,8 @@ import { faker } from '@faker-js/faker';
 import { AddPlace, Location, UpdatePlace } from '../../types/api.types';
 
 describe('Verify google API', { tags: '@api' }, () => {
-    const baseUrl: string = Cypress.env('baseurl');
+    const env = Cypress.config('env') as Record<string, string>;
+    const baseUrl: string = env['baseurl'];
     let addPlacePayload: AddPlace;
     let placeId: string;
     let updatePayload: UpdatePlace;

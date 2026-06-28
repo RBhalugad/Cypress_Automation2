@@ -27,28 +27,31 @@ Cypress.Commands.add('getIframeBody', (iframeSelector: string) => {
 
 // ── API Commands ──────────────────────────────────────────────────────────────
 
-const API_URL: string = (Cypress.env('apiUrl') as string) || 'https://jsonplaceholder.typicode.com';
+const getApiUrl = (): string =>
+    (Cypress.config('env') as Record<string, string>)?.apiUrl ||
+    'https://jsonplaceholder.typicode.com';
 
 const getAuthHeader = (): Record<string, string> => ({
-    Authorization: `Bearer ${Cypress.env('authToken') as string}`,
+    Authorization: `Bearer ${(Cypress.config('env') as Record<string, string>)?.authToken ?? ''}`,
 });
 
 Cypress.Commands.add('login', (username = 'admin', password = 'password') => {
-    const payload: LoginPayload = { username, password };
+    const payload: LoginPayload = { userName: username, password };
 
     cy.request<LoginResponse>({
         method: 'POST',
-        url: `${API_URL}/auth/login`,
+        url: `${getApiUrl()}/auth/login`,
         body: payload,
     }).then(({ body }) => {
-        Cypress.env('authToken', body.token);
+        const currentEnv = Cypress.config('env') as Record<string, string>;
+        Cypress.config('env', { ...currentEnv, authToken: body.token });
     });
 });
 
 Cypress.Commands.add('apiGet', (endpoint: string, options = {}) => {
     return cy.request({
         method: 'GET',
-        url: `${API_URL}${endpoint}`,
+        url: `${getApiUrl()}${endpoint}`,
         headers: getAuthHeader(),
         ...options,
     });
@@ -57,7 +60,7 @@ Cypress.Commands.add('apiGet', (endpoint: string, options = {}) => {
 Cypress.Commands.add('apiPost', (endpoint: string, body: Cypress.RequestBody, options = {}) => {
     return cy.request({
         method: 'POST',
-        url: `${API_URL}${endpoint}`,
+        url: `${getApiUrl()}${endpoint}`,
         headers: getAuthHeader(),
         body,
         ...options,
@@ -67,7 +70,7 @@ Cypress.Commands.add('apiPost', (endpoint: string, body: Cypress.RequestBody, op
 Cypress.Commands.add('apiPut', (endpoint: string, body: Cypress.RequestBody, options = {}) => {
     return cy.request({
         method: 'PUT',
-        url: `${API_URL}${endpoint}`,
+        url: `${getApiUrl()}${endpoint}`,
         headers: getAuthHeader(),
         body,
         ...options,
@@ -77,7 +80,7 @@ Cypress.Commands.add('apiPut', (endpoint: string, body: Cypress.RequestBody, opt
 Cypress.Commands.add('apiPatch', (endpoint: string, body: Cypress.RequestBody, options = {}) => {
     return cy.request({
         method: 'PATCH',
-        url: `${API_URL}${endpoint}`,
+        url: `${getApiUrl()}${endpoint}`,
         headers: getAuthHeader(),
         body,
         ...options,
@@ -87,7 +90,7 @@ Cypress.Commands.add('apiPatch', (endpoint: string, body: Cypress.RequestBody, o
 Cypress.Commands.add('apiDelete', (endpoint: string, options = {}) => {
     return cy.request({
         method: 'DELETE',
-        url: `${API_URL}${endpoint}`,
+        url: `${getApiUrl()}${endpoint}`,
         headers: getAuthHeader(),
         failOnStatusCode: false,
         ...options,

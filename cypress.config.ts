@@ -26,7 +26,7 @@ export default defineConfig({
     reporter: 'cypress-mochawesome-reporter',
     e2e: {
         specPattern: 'cypress/e2e/**/*.spec.ts',
-        experimentalStudio: true,
+        allowCypressEnv: false,
         setupNodeEvents(on, config) {
             require('cypress-mochawesome-reporter/plugin')(on);
             grepPlugin(on, config);

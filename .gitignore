@@ -2,6 +2,7 @@ node_modules/
 dist/
 cypress/reports/
 cypress/downloads/
+cypress/screenshots/
 .env
 *.log
 .vscode/*

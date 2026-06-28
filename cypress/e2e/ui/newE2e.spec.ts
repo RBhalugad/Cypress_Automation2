@@ -11,7 +11,8 @@ describe('End to End test', { tags: ['@e2e', '@ui'] }, () => {
 
     it('submit order', { tags: ['@e2e', '@smoke', '@ui'] }, () => {
         const productName = 'Nokia Edge';
-        homePage.goTo(Cypress.env('baseurl') + '/angularpractice/shop');
+        const env = Cypress.config('env') as Record<string, string>;
+        homePage.goTo(env['baseurl'] + '/angularpractice/shop');
         productPage.pageValidation();
         productPage.verifyCardLimit();
         productPage.selectProductByname(productName);

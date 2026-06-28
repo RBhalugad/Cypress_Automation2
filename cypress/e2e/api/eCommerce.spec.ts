@@ -1,5 +1,6 @@
 describe('E-Commerce API E2E Flow', { tags: ['@api', '@e2e'] }, () => {
-    const baseUrl: string = Cypress.env('baseurl');
+    const env = Cypress.config('env') as Record<string, string>;
+    const baseUrl: string = env['baseurl'];
     let token: string;
     let userId: string;
     let productId: string;
@@ -14,8 +15,8 @@ describe('E-Commerce API E2E Flow', { tags: ['@api', '@e2e'] }, () => {
                 method: 'POST',
                 url: `${baseUrl}/api/ecom/auth/login`,
                 body: {
-                    userEmail: Cypress.env('ecom_user'),
-                    userPassword: Cypress.env('ecom_password'),
+                    userEmail: env['ecom_user'],
+                    userPassword: env['ecom_password'],
                 },
             }).then((loginResponse) => {
                 expect(loginResponse.status).to.eq(200);

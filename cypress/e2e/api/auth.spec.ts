@@ -2,6 +2,7 @@ import type { LoginPayload, LoginResponse, OAuthTokenResponse } from '../../type
 
 describe('Authentication Scenarios', { tags: '@api' }, () => {
     const baseUrl = 'https://jsonplaceholder.typicode.com';
+    const env = Cypress.config('env') as Record<string, string>;
 
     // ── 7.1 Basic Auth ──────────────────────────────────────────────────────────
 
@@ -19,7 +20,7 @@ describe('Authentication Scenarios', { tags: '@api' }, () => {
     // ── 7.2 Bearer Token ────────────────────────────────────────────────────────
 
     it('calls a protected endpoint with a Bearer token', () => {
-        const token: string = Cypress.env('authToken');
+        const token: string = env['authToken'];
 
         cy.request({
             method: 'GET',
@@ -37,7 +38,7 @@ describe('Authentication Scenarios', { tags: '@api' }, () => {
 
         before(() => {
             const credentials: LoginPayload = {
-                username: 'admin',
+                userName: 'admin',
                 password: 'password123',
             };
 
@@ -48,10 +49,8 @@ describe('Authentication Scenarios', { tags: '@api' }, () => {
                 url: `${baseUrl}/posts`, // Simulated — replace with real auth endpoint
                 body: credentials,
                 failOnStatusCode: false,
-            }).then((response) => {
-                // Simulated: store a mock token for demonstration
+            }).then(() => {
                 authToken = 'mock-jwt-token-for-testing';
-                cy.log(`Auth token set: ${authToken}`);
             });
         });
 
@@ -70,7 +69,7 @@ describe('Authentication Scenarios', { tags: '@api' }, () => {
     // ── 7.4 API Key in Header ───────────────────────────────────────────────────
 
     it('authenticates with an API key in a custom header', () => {
-        const apiKey: string = Cypress.env('apiKey');
+        const apiKey: string = env['apiKey'];
 
         cy.request({
             method: 'GET',
@@ -87,7 +86,7 @@ describe('Authentication Scenarios', { tags: '@api' }, () => {
         cy.request({
             method: 'GET',
             url: `${baseUrl}/posts/1`,
-            qs: { api_key: Cypress.env('apiKey') as string },
+            qs: { api_key: env['apiKey'] },
         })
             .its('status')
             .should('eq', 200);
