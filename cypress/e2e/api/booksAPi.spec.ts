@@ -1,31 +1,25 @@
 import { faker } from '@faker-js/faker';
+import { BooksResponse, Book, PostBooksPayload } from '../../types/api.types';
 
-// ── Constants ──────────────────────────────────────────────────────────────
 const BOOKSTORE_URL = 'https://demoqa.com/BookStore/v1';
 const ACCOUNT_URL = 'https://demoqa.com/Account/v1';
 
-// ── Password helper (meets DemoQA policy) ─────────────────────────────────
 const generatePassword = (): string =>
     `${faker.string.alpha({ casing: 'upper', length: 2 })}` +
     `${faker.string.alpha({ casing: 'lower', length: 2 })}` +
     `${faker.string.numeric(2)}@!`;
 
-// ── ISBNs available in DemoQA ─────────────────────────────────────────────
-const BOOK_ISBN = '9781449325862'; // Git Pocket Guide  (primary test book)
-const REPLACE_ISBN = '9781449331818'; // Learning JS Design Patterns (used in PUT /Books/{ISBN})
+const BOOK_ISBN = '9781449325862';
+const REPLACE_ISBN = '9781449331818';
 
-// ──────────────────────────────────────────────────────────────────────────
 describe('Books API Tests', () => {
-    // Shared auth state (populated in before())
     let userId: string;
     let token: string;
     const username = faker.internet.email();
     const password = generatePassword();
     const userPayload = { userName: username, password };
 
-    // ── Setup: create user & generate token ──────────────────────────────
     before(() => {
-        // 1. Create user
         cy.request({
             method: 'POST',
             url: `${ACCOUNT_URL}/User`,
@@ -33,10 +27,8 @@ describe('Books API Tests', () => {
         }).then((res) => {
             expect(res.status).to.eq(201);
             userId = res.body.userID;
-            cy.log(`Created user: ${userId}`);
         });
 
-        // 2. Generate token
         cy.request({
             method: 'POST',
             url: `${ACCOUNT_URL}/GenerateToken`,
@@ -44,11 +36,9 @@ describe('Books API Tests', () => {
         }).then((res) => {
             expect(res.status).to.eq(200);
             token = res.body.token;
-            cy.log(`Token: ${token}`);
         });
     });
 
-    // ── Teardown: delete user ─────────────────────────────────────────────
     after(() => {
         cy.request({
             method: 'DELETE',
@@ -56,13 +46,11 @@ describe('Books API Tests', () => {
             headers: { Authorization: `Bearer ${token}` },
         }).then((res) => {
             expect(res.status).to.eq(204);
-            cy.log(`Deleted user: ${userId}`);
         });
     });
 
-    // ── GET /Books ────────────────────────────────────────────────────────
     it('GET /Books - Get all books and verify structure', () => {
-        cy.request({
+        cy.request<BooksResponse>({
             method: 'GET',
             url: `${BOOKSTORE_URL}/Books`,
         }).then((response) => {
@@ -71,9 +59,8 @@ describe('Books API Tests', () => {
                 .empty;
 
             const books = response.body.books;
-            cy.log(`Total Books: ${books.length}`);
 
-            books.forEach((book: any) => {
+            books.forEach((book: Book) => {
                 expect(book).to.have.property('isbn').and.to.be.a('string').and.to.not.be.empty;
                 expect(book).to.have.property('title').and.to.be.a('string').and.to.not.be.empty;
                 expect(book).to.have.property('author').and.to.be.a('string').and.to.not.be.empty;
@@ -84,16 +71,14 @@ describe('Books API Tests', () => {
         });
     });
 
-    // ── GET /Book?ISBN= ───────────────────────────────────────────────────
-    it('GET /Book - Get each book by ISBN and verify', () => {
-        cy.request({
+    it('GET /Book?ISBN - Get each book by ISBN and verify response', () => {
+        cy.request<BooksResponse>({
             method: 'GET',
             url: `${BOOKSTORE_URL}/Books`,
         }).then((response) => {
             expect(response.status).to.eq(200);
 
-            const isbns: string[] = response.body.books.map((book: any) => book.isbn);
-            cy.log(`All ISBNs: ${isbns.join(', ')}`);
+            const isbns: string[] = response.body.books.map((book: Book) => book.isbn);
 
             isbns.forEach((isbn) => {
                 cy.request({
@@ -103,15 +88,13 @@ describe('Books API Tests', () => {
                 }).then((bookResponse) => {
                     expect(bookResponse.status).to.eq(200);
                     expect(bookResponse.body).to.have.property('isbn', isbn);
-                    cy.log(`✅ Verified Book ISBN: ${isbn}`);
                 });
             });
         });
     });
 
-    // ── GET /Book?ISBN= (specific book) ───────────────────────────────────
-    it('GET /Book - Verify all fields for Git Pocket Guide', () => {
-        const expectedBook = {
+    it('GET /Book?ISBN - Verify all fields for Git Pocket Guide (9781449325862)', () => {
+        const expectedBook: Book = {
             isbn: '9781449325862',
             title: 'Git Pocket Guide',
             subTitle: 'A Working Introduction',
@@ -143,27 +126,25 @@ describe('Books API Tests', () => {
         });
     });
 
-    // ── POST /Books - Add books to user's collection ──────────────────────
-    it('POST /Books - Add a book to user collection', () => {
+    it('POST /Books - Add a single book to user collection', () => {
+        const body: PostBooksPayload = {
+            userId,
+            collectionOfIsbns: [{ isbn: BOOK_ISBN }],
+        };
         cy.request({
             method: 'POST',
             url: `${BOOKSTORE_URL}/Books`,
             headers: { Authorization: `Bearer ${token}` },
-            body: {
-                userId,
-                collectionOfIsbns: [{ isbn: BOOK_ISBN }],
-            },
+            body,
         }).then((response) => {
             expect(response.status).to.eq(201);
             expect(response.body).to.have.property('books').and.to.be.an('array').and.to.not.be
                 .empty;
             expect(response.body.books[0]).to.have.property('isbn', BOOK_ISBN);
-            cy.log(`✅ Added book ${BOOK_ISBN} to user collection`);
         });
     });
 
-    // ── GET /Books?UserId= - Verify book was added ─────────────────────────
-    it('GET /User/{userId} - Verify book appears in user profile', () => {
+    it('GET /User/{userId} - Verify added book appears in user profile', () => {
         cy.request({
             method: 'GET',
             url: `${ACCOUNT_URL}/User/${userId}`,
@@ -174,12 +155,10 @@ describe('Books API Tests', () => {
                 .empty;
             const isbns = response.body.books.map((b: any) => b.isbn);
             expect(isbns).to.include(BOOK_ISBN);
-            cy.log(`✅ Book ${BOOK_ISBN} confirmed in user profile`);
         });
     });
 
-    // ── PUT /Books/{ISBN} - Replace a book in user's collection ───────────
-    it('PUT /Books/{ISBN} - Replace book in user collection', () => {
+    it('PUT /Books/{ISBN} - Replace existing book in user collection', () => {
         cy.request({
             method: 'PUT',
             url: `${BOOKSTORE_URL}/Books/${BOOK_ISBN}`,
@@ -193,12 +172,10 @@ describe('Books API Tests', () => {
             expect(response.body).to.have.property('books').and.to.be.an('array');
             const isbns = response.body.books.map((b: any) => b.isbn);
             expect(isbns).to.include(REPLACE_ISBN);
-            cy.log(`✅ Replaced ${BOOK_ISBN} → ${REPLACE_ISBN}`);
         });
     });
 
-    // ── DELETE /Book - Delete a single book from user's collection ─────────
-    it('DELETE /Book - Delete single book from user collection', () => {
+    it('DELETE /Book - Delete a single book from user collection', () => {
         cy.request({
             method: 'DELETE',
             url: `${BOOKSTORE_URL}/Book`,
@@ -209,29 +186,26 @@ describe('Books API Tests', () => {
             },
         }).then((response) => {
             expect(response.status).to.eq(204);
-            cy.log(`✅ Deleted book ${REPLACE_ISBN} from user collection`);
         });
     });
 
-    // ── POST /Books - Add multiple books ─────────────────────────────────
     it('POST /Books - Add multiple books to user collection', () => {
+        const body: PostBooksPayload = {
+            userId,
+            collectionOfIsbns: [{ isbn: '9781449325862' }, { isbn: '9781449331818' }],
+        };
         cy.request({
             method: 'POST',
             url: `${BOOKSTORE_URL}/Books`,
             headers: { Authorization: `Bearer ${token}` },
-            body: {
-                userId,
-                collectionOfIsbns: [{ isbn: '9781449325862' }, { isbn: '9781449331818' }],
-            },
+            body,
         }).then((response) => {
             expect(response.status).to.eq(201);
             expect(response.body).to.have.property('books').and.to.be.an('array');
             expect(response.body.books).to.have.length(2);
-            cy.log(`✅ Added 2 books to user collection`);
         });
     });
 
-    // ── DELETE /Books - Delete ALL books from user's collection ───────────
     it('DELETE /Books - Delete all books from user collection', () => {
         cy.request({
             method: 'DELETE',
@@ -241,11 +215,9 @@ describe('Books API Tests', () => {
         }).then((response) => {
             expect(response.status).to.eq(204);
             expect(response.body).to.be.empty;
-            cy.log(`✅ Deleted all books from user collection`);
         });
     });
 
-    // ── Verify collection is empty after DELETE /Books ────────────────────
     it('GET /User/{userId} - Verify user collection is empty after bulk delete', () => {
         cy.request({
             method: 'GET',
@@ -254,7 +226,6 @@ describe('Books API Tests', () => {
         }).then((response) => {
             expect(response.status).to.eq(200);
             expect(response.body).to.have.property('books').and.to.be.an('array').and.to.be.empty;
-            cy.log('✅ User collection is empty');
         });
     });
 });

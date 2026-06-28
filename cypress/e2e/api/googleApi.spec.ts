@@ -1,26 +1,19 @@
-interface PlacePayload {
-    location: { lat: number; lng: number };
-    accuracy: number;
-    name: string;
-    phone_number: string;
-    address: string;
-    types: string[];
-    website: string;
-    language: string;
-}
-
 import { faker } from '@faker-js/faker';
+import { AddPlace, Location, UpdatePlace } from '../../types/api.types';
 
 describe('Verify google API', { tags: '@api' }, () => {
     const baseUrl: string = Cypress.env('baseurl');
-    let addPlacePayload: PlacePayload;
+    let addPlacePayload: AddPlace;
+    let placeId: string;
+    let updatePayload: UpdatePlace;
 
     beforeEach(() => {
+        const location: Location = {
+            lat: faker.location.latitude(),
+            lng: faker.location.longitude(),
+        };
         addPlacePayload = {
-            location: {
-                lat: faker.location.latitude(),
-                lng: faker.location.longitude(),
-            },
+            location: location,
             accuracy: 50,
             name: faker.person.firstName(),
             phone_number: faker.phone.number(),
@@ -31,8 +24,7 @@ describe('Verify google API', { tags: '@api' }, () => {
         };
     });
 
-    it('verify addupdategetdelete place', { tags: ['@api', '@smoke'] }, () => {
-        cy.log('*--- Adding a new place ---*');
+    it('1. Create - should add a new place', { tags: ['@api', '@smoke'] }, () => {
         cy.request({
             method: 'POST',
             url: `${baseUrl}/maps/api/place/add/json`,
@@ -44,54 +36,58 @@ describe('Verify google API', { tags: '@api' }, () => {
             expect(response.body.scope).to.eq('APP');
             expect(response.headers.server).to.eq('Apache/2.4.52 (Ubuntu)');
 
-            const postResponseBody = response.body;
-            const placeId: string = postResponseBody.place_id;
-            cy.log('*Place ID created:*', placeId);
-            cy.log('*Add Place Response Body:*', JSON.stringify(postResponseBody));
+            placeId = response.body.place_id;
 
-            const newAddress = '70 winter walk, USA';
-            cy.log(`*--- Updating place with new address: ${newAddress} ---*`);
+            // Generate update payload to be used in next test
+            updatePayload = {
+                place_id: placeId,
+                address: faker.location.streetAddress(),
+                key: 'qaclick123',
+            };
+        });
+    });
+
+    it('2. Update - should update the place address', { tags: ['@api', '@smoke'] }, () => {
+        expect(placeId, 'Place ID from Create step').to.exist;
+
+        cy.request({
+            method: 'PUT',
+            url: `${baseUrl}/maps/api/place/update/json`,
+            qs: { key: 'qaclick123' },
+            body: updatePayload,
+        }).then((updateResponse) => {
+            expect(updateResponse.status).to.eq(200);
+            expect(updateResponse.body.msg).to.eq('Address successfully updated');
+        });
+    });
+
+    it(
+        '3. Read - should get the place and verify the address update',
+        { tags: ['@api', '@smoke'] },
+        () => {
+            expect(placeId, 'Place ID from Create step').to.exist;
+
             cy.request({
-                method: 'PUT',
-                url: `${baseUrl}/maps/api/place/update/json`,
-                qs: { key: 'qaclick123' },
-                body: {
-                    place_id: placeId,
-                    address: newAddress,
-                    key: 'qaclick123',
-                },
-            })
-                .then((updateResponse) => {
-                    expect(updateResponse.status).to.eq(200);
-                    expect(updateResponse.body.msg).to.eq('Address successfully updated');
-                    cy.log('*Update successful:*', updateResponse.body.msg);
+                method: 'GET',
+                url: `${baseUrl}/maps/api/place/get/json`,
+                qs: { key: 'qaclick123', place_id: placeId },
+            }).then((getResponse) => {
+                expect(getResponse.status).to.eq(200);
+                expect(getResponse.body.address).to.eq(updatePayload.address);
+            });
+        },
+    );
 
-                    cy.log('*--- Verifying the address update ---*');
-                    return cy.request({
-                        method: 'GET',
-                        url: `${baseUrl}/maps/api/place/get/json`,
-                        qs: { key: 'qaclick123', place_id: placeId },
-                    });
-                })
-                .then((getResponse) => {
-                    expect(getResponse.status).to.eq(200);
-                    expect(getResponse.body.address).to.eq(newAddress);
-                    cy.log('*Address successfully verified*');
-                    cy.log('*Get Place Response Body:*', JSON.stringify(getResponse.body));
+    it('4. Delete - should delete the place', { tags: ['@api', '@smoke'] }, () => {
+        expect(placeId, 'Place ID from Create step').to.exist;
 
-                    cy.log('*--- Deleting the place ---*');
-                    return cy.request({
-                        method: 'DELETE',
-                        url: `${baseUrl}/maps/api/place/delete/json`,
-                        body: { place_id: placeId },
-                    });
-                })
-                .then((deleteResponse) => {
-                    expect(deleteResponse.status).to.eq(200);
-                    expect(deleteResponse.body.status).to.eq('OK');
-                    cy.log('*Place successfully deleted*');
-                    cy.log('*Delete Place Response Body:*', JSON.stringify(deleteResponse.body));
-                });
+        cy.request({
+            method: 'DELETE',
+            url: `${baseUrl}/maps/api/place/delete/json`,
+            body: { place_id: placeId },
+        }).then((deleteResponse) => {
+            expect(deleteResponse.status).to.eq(200);
+            expect(deleteResponse.body.status).to.eq('OK');
         });
     });
 
@@ -99,10 +95,7 @@ describe('Verify google API', { tags: '@api' }, () => {
         'should add a place using data from a static JSON file',
         { tags: ['@api', '@regression'] },
         () => {
-            cy.log('*--- Loading payload from fixture: addPlace.json ---*');
             cy.fixture('addPlace.json').then((payload) => {
-                cy.log('*Payload loaded:*', JSON.stringify(payload));
-                cy.log('*--- Adding a new place using fixture data ---*');
                 cy.request({
                     method: 'POST',
                     url: `${baseUrl}/maps/api/place/add/json`,
@@ -110,11 +103,9 @@ describe('Verify google API', { tags: '@api' }, () => {
                     body: payload,
                     headers: { 'Content-Type': 'application/json' },
                 }).then((response) => {
-                    cy.log('*Response Body:*', JSON.stringify(response.body));
                     expect(response.status).to.eq(200);
                     expect(response.body.scope).to.eq('APP');
                     expect(response.headers.server).to.eq('Apache/2.4.52 (Ubuntu)');
-                    cy.log('*Assertions passed successfully.*');
                 });
             });
         },

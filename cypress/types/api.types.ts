@@ -67,8 +67,15 @@ export interface Todo {
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export interface LoginPayload {
-    username: string;
+    userName: string;
     password: string;
+}
+
+export interface GenerateTokenResponse {
+    token: string;
+    expires: string;
+    status: string;
+    result: string;
 }
 
 export interface LoginResponse {
@@ -76,6 +83,38 @@ export interface LoginResponse {
     refreshToken?: string;
     expiresIn: number;
     user: Pick<User, 'id' | 'username' | 'email'>;
+}
+
+export interface UserResponse {
+    userId?: string;
+    userID?: string;
+    username: string;
+    books: Book[];
+}
+
+export interface Book {
+    isbn: string;
+    title: string;
+    subTitle: string;
+    author: string;
+    publish_date: string;
+    publisher: string;
+    pages: number;
+    description: string;
+    website: string;
+}
+
+export interface BooksResponse {
+    books: Book[];
+}
+
+export interface CollectionOfIsbn {
+    isbn: string;
+}
+
+export interface PostBooksPayload {
+    userId: string;
+    collectionOfIsbns: CollectionOfIsbn[];
 }
 
 export interface OAuthTokenResponse {
@@ -145,4 +184,28 @@ export interface MultiEnvConfig {
     dev: EnvConfig;
     staging: EnvConfig;
     production: EnvConfig;
+}
+
+// placeAPI
+
+export interface AddPlace {
+    location: Location;
+    accuracy: number;
+    name: string;
+    phone_number: string;
+    address: string;
+    types: string[];
+    website: string;
+    language: string;
+}
+
+export interface Location {
+    lat: number;
+    lng: number;
+}
+
+export interface UpdatePlace extends Partial<AddPlace> {
+    place_id: string;
+    address: string;
+    key: string;
 }
