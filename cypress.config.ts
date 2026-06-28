@@ -13,7 +13,7 @@ export default defineConfig({
     pageLoadTimeout: 60_000,
     requestTimeout: 30_000,
     responseTimeout: 60_000,
-    retries: { runMode: 2, openMode: 1 },
+    retries: { runMode: 2, openMode: 0 },
     chromeWebSecurity: false,
     env: {
         baseurl: 'https://rahulshettyacademy.com',
